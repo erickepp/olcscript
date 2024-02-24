@@ -1,2 +1,5 @@
 .venv
 .env
+parser/parser.out
+parser/parsetab.py
+**/__pycache__
