@@ -1,4 +1,18 @@
-from ply.lex import lex
+import parser.ply.lex as lex
+import parser.ply.yacc as yacc
+
+from environment.types import ExpressionType
+from expressions.primitive import Primitive
+from expressions.operation import Operation
+
+from instructions.console_log import ConsoleLog
+
+class codeParams:
+    def __init__(self, line, column):
+        self.line = line
+        self.column = column
+
+ast = None
 
 reserved = {
     'number': 'NUMBER',
@@ -6,9 +20,6 @@ reserved = {
     'string': 'STRING',
     'boolean': 'BOOLEAN',
     'char': 'CHAR',
-    'true': 'TRUE',
-    'false': 'FALSE',
-    'null': 'NULL',
     'var': 'VAR',
     'const': 'CONST',
     'if': 'IF',
@@ -18,6 +29,7 @@ reserved = {
     'default': 'DEFAULT',
     'while': 'WHILE',
     'for': 'FOR',
+    'of': 'OF',
     'break': 'BREAK',
     'continue': 'CONTINUE',
     'return': 'RETURN',
@@ -38,15 +50,13 @@ reserved = {
     'parseFloat': 'PARSEFLOAT',
     'toString': 'TOSTRING',
     'toLowerCase': 'TOLOWERCASE',
-    'toUpperCase': 'TOOPPERCASE',
+    'toUpperCase': 'TOUPPERCASE',
     'typeof': 'TYPEOF'
 }
 
 tokens = [
     'INCREMENTO',
     'DECREMENTO',
-    'MASIGUAL',
-    'MENOSIGUAL',
     'MENIGQUE',
     'MAYIGQUE',
     'DOBLEIG',
@@ -73,17 +83,17 @@ tokens = [
     'MAYQUE',
     'NOT',
     'IGUAL',
-    'ENTERO',
     'DECIMAL',
+    'ENTERO',
+    'TRUE',
+    'FALSE',
     'CADENA',
     'CARACTER',
     'ID'
 ] + list(reserved.values())
 
-t_INCREMENTO = r'\+\+' 
-t_DECREMENTO = r'--'
-t_MASIGUAL   = r'\+='
-t_MENOSIGUAL = r'-='
+t_INCREMENTO = r'\+=' 
+t_DECREMENTO = r'-='
 t_MENIGQUE   = r'<='
 t_MAYIGQUE   = r'>='
 t_DOBLEIG    = r'=='
@@ -109,39 +119,61 @@ t_MODULO     = r'%'
 t_MENQUE     = r'<' 
 t_MAYQUE     = r'>' 
 t_NOT        = r'!' 
-t_IGUAL      = r'=' 
-
-
-def t_ENTERO(t):
-    r'\d+'
-    try:
-        t.value = int(t.value)
-    except ValueError:
-        print('Error al convertir a entero %d', t.value)
-        t.value = 0
-    return t
+t_IGUAL      = r'='
 
 
 def t_DECIMAL(t):
     r'\d+\.\d+'
     try:
-        t.value = float(t.value)
+        float_value = float(t.value)
+        params = get_params(t)
+        t.value = Primitive(params.line, params.column, float_value, ExpressionType.FLOAT)
     except ValueError:
         print('Error al convertir a decimal %d', t.value)
-        t.value = 0
+        t.value = Primitive(0, 0, None, ExpressionType.NULL)
+    return t
+
+
+def t_ENTERO(t):
+    r'\d+'
+    try:
+        int_value = int(t.value)
+        params = get_params(t)
+        t.value = Primitive(params.line, params.column, int_value, ExpressionType.NUMBER)
+    except ValueError:
+        print('Error al convertir a entero %d', t.value)
+        t.value = Primitive(0, 0, None, ExpressionType.NULL)
+    return t
+
+
+def t_TRUE(t):
+    r'true'
+    params = get_params(t)
+    t.value = Primitive(params.line, params.column, True, ExpressionType.BOOLEAN)
+    return t
+
+
+def t_FALSE(t):
+    r'false'
+    params = get_params(t)
+    t.value = Primitive(params.line, params.column, False, ExpressionType.BOOLEAN)
     return t
 
 
 def t_CADENA(t):
     r'\"([^\n\"\\]|\\(n|r|t|\\|\'|\"))*\"'
-    t.value = t.value[1:-1]
-    return t 
+    str_value = t.value[1:-1]
+    params = get_params(t)
+    t.value = Primitive(params.line, params.column, str_value, ExpressionType.STRING)
+    return t
 
 
 def t_CARACTER(t):
-    r'\'([^\n\'\\]|\\(n|r|t|\\|\'|\"))\''
-    t.value = t.value[1:-1]
-    return t 
+    r'\'([^\n\'\\]|\\(n|r|t|\\|\'|\"))?\''
+    char_value = t.value[1:-1]
+    params = get_params(t)
+    t.value = Primitive(params.line, params.column, char_value, ExpressionType.CHAR)
+    return t
 
 
 def t_ID(t):
@@ -151,7 +183,7 @@ def t_ID(t):
 
 
 def t_COMENTARIO_SIMPLE(t):
-    r'//.*\n'
+    r'//.*'
     t.lexer.lineno += 1
 
 
@@ -165,10 +197,165 @@ def t_newline(t):
     t.lexer.lineno += t.value.count('\n')
 
 
-t_ignore = ' \t'
+t_ignore = ' \t\r'
 
 
 def t_error(t):
-    print("Error Léxico '%s'" % t.value[0])
+    params = get_params(t)
+    ast.set_errors(f'El carácter "{t.value[0]}" no pertenece al lenguaje.', params.line, params.column, 'Léxico')
     t.lexer.skip(1)
 
+
+precedence = (
+    ('left', 'OR'),
+    ('left', 'AND'),
+    ('right', 'NOT'),
+    ('left', 'MAYQUE', 'MENQUE', 'MAYIGQUE', 'MENIGQUE', 'DOBLEIG', 'NOIG'),
+    ('left', 'MAS', 'MENOS'),
+    ('left', 'POR', 'DIVIDIDO', 'MODULO'),
+    ('right', 'UMENOS'),
+)
+
+
+def p_init(p):
+    'init : instrucciones'
+    p[0] = p[1]
+
+
+def p_lista_instrucciones(p):
+    '''instrucciones : instrucciones instruccion
+                     |'''
+    if len(p) > 1:
+        p[1].append(p[2])
+        p[0] = p[1]
+    else:
+        p[0] = []
+
+
+def p_instrucciones_error(p):
+    'instrucciones : instrucciones error instruccion'
+    p[1].append(p[3])
+    p[0] = p[1]
+
+
+def p_instruccion_console_log(p):
+    '''instruccion : CONSOLE PUNTO LOG PARIZQ lista_expresiones PARDER PTCOMA
+                   | CONSOLE PUNTO LOG PARIZQ PARDER PTCOMA'''
+    params = get_params(p)
+    if len(p) > 7:
+        p[0] = ConsoleLog(params.line, params.column, p[5])
+    else:
+        p[0] = ConsoleLog(params.line, params.column, [])
+
+
+def p_lista_expresiones(p):
+    '''lista_expresiones : lista_expresiones COMA expresion
+                         | expresion'''
+    if len(p) > 2:
+        p[1].append(p[3])
+        p[0] = p[1]
+    else:
+        p[0] = [p[1]]
+
+
+def p_expresion(p):
+    '''expresion : ENTERO
+                 | DECIMAL
+                 | TRUE
+                 | FALSE
+                 | CADENA
+                 | CARACTER'''
+    p[0] = p[1]
+
+
+def p_expresion_aritmetica(p):
+    '''expresion : expresion MAS expresion
+                 | expresion MENOS expresion
+                 | expresion POR expresion
+                 | expresion DIVIDIDO expresion
+                 | expresion MODULO expresion'''
+    params = get_params(p)
+    if p[2] == '+':
+        p[0] = Operation(params.line, params.column, '+', p[1], p[3])
+    elif p[2] == '-':
+        p[0] = Operation(params.line, params.column, '-', p[1], p[3])
+    elif p[2] == '*':
+        p[0] = Operation(params.line, params.column, '*', p[1], p[3])
+    elif p[2] == '/':
+        p[0] = Operation(params.line, params.column, '/', p[1], p[3])
+    elif p[2] == '%':
+        p[0] = Operation(params.line, params.column, '%', p[1], p[3])
+
+
+def p_expresion_unaria(p):
+    'expresion : MENOS expresion %prec UMENOS'
+    params = get_params(p)
+    p[0] = Operation(params.line, params.column, '-', p[2])
+
+
+def p_expresion_agrupacion(p):
+    'expresion : PARIZQ expresion PARDER'
+    p[0] = p[2]
+
+
+def p_expresion_relacional(p):
+    '''expresion : expresion MAYQUE expresion
+                 | expresion MENQUE expresion
+                 | expresion MAYIGQUE expresion
+                 | expresion MENIGQUE expresion
+                 | expresion DOBLEIG expresion
+                 | expresion NOIG expresion'''
+    params = get_params(p)
+    if p[2] == '>':
+        p[0] = Operation(params.line, params.column, '>', p[1], p[3])
+    elif p[2] == '<':
+        p[0] = Operation(params.line, params.column, '<', p[1], p[3])
+    elif p[2] == '>=':
+        p[0] = Operation(params.line, params.column, '>=', p[1], p[3])
+    elif p[2] == '<=':
+        p[0] = Operation(params.line, params.column, '<=', p[1], p[3])
+    elif p[2] == '==':
+        p[0] = Operation(params.line, params.column, '==', p[1], p[3])
+    elif p[2] == '!=':
+        p[0] = Operation(params.line, params.column, '!=', p[1], p[3])
+
+
+def p_expresion_logica(p):
+    '''expresion : expresion OR expresion
+                 | expresion AND expresion
+                 | NOT expresion'''
+    params = get_params(p)
+    if p[2] == '||':
+        p[0] = Operation(params.line, params.column, '||', p[1], p[3])
+    elif p[2] == '&&':
+        p[0] = Operation(params.line, params.column, '&&', p[1], p[3])
+    elif p[1] == '!':
+        p[0] = Operation(params.line, params.column, '!', p[2])
+
+
+def p_error(p):
+    if p:
+        params = get_params(p)
+        ast.set_errors(f'No se esperaba el token "{p.type}".', params.line, params.column, 'Sintáctico')
+    else:
+        ast.set_console('Error sintáctico irrecuperable')
+        ast.set_errors(f'Error irrecuperable.', 0, 0, 'Sintáctico')
+
+
+def get_params(t):
+    line = t.lexer.lineno
+    lexpos = t.lexpos if isinstance(t.lexpos, int) else 0
+    column = lexpos - t.lexer.lexdata.rfind('\n', 0, lexpos) 
+    return codeParams(line, column)
+
+
+class Parser:
+    def __init__(self, ast):
+        self.ast = ast
+
+    def interpretar(self, input):
+        global ast; ast = self.ast
+        lexer = lex.lex()
+        parser = yacc.yacc()
+        result = parser.parse(input)
+        return result

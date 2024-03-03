@@ -12,7 +12,7 @@ function RunCodeButton({ input, setOutput }) {
     setOutput('');
     
     try {
-      const { data } = await axios.post(`${serverIP}/parser`, { input }, {
+      const { data } = await axios.post(`${serverIP}/interpreter`, { input }, {
         headers: {
           'Content-Type': 'application/json'
         },

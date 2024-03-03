@@ -7,9 +7,8 @@ function Errors() {
     <tr key={index}>
       <th scope="row">{index + 1}</th>
       <td>{error.description}</td>
-      <td>{error.scope}</td>
       <td>{error.line}</td>
-      <td>{error.column}</td>
+      <td>{error.col}</td>
       <td>{error.type}</td>
     </tr>
   ));
@@ -27,7 +26,6 @@ function Errors() {
           <tr>
             <th scope="col">No.</th>
             <th scope="col">Descripción</th>
-            <th scope="col">Ámbito</th>
             <th scope="col">Línea</th>
             <th scope="col">Columna</th>
             <th scope="col">Tipo</th>
