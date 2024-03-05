@@ -8,7 +8,7 @@ class Ast:
         self.console += content + '\n'
     
     def get_console(self):
-        return self.console.encode().decode('unicode_escape')
+        return self.console.encode('latin1').decode('unicode_escape')
 
     def add_instructions(self, instructions):
         self.instructions += instructions

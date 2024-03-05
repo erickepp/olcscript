@@ -6,20 +6,29 @@ class Environment:
         self.previous = previous
         self.id = id
         self.tabla = {}
+        self.constants = {}
         self.interfaces = {}
         self.functions = {}
 
-    def save_variable(self, ast, id, symbol, line, col):
-        if id in self.tabla:
-            ast.setErrors(f'La variable "{id}" ya existe.', line, col, 'Semántico')
+    def save_variable(self, ast, id, symbol, line, col, declaration_type):
+        if id in self.tabla or id in self.constants:
+            ast.set_errors(f'La variable "{id}" ya existe.', line, col, 'Semántico')
             return
-        self.tabla[id] = symbol
+        elif symbol.type == ExpressionType.NULL:
+            ast.set_errors(f'Asignación incorrecta: "{id} = null".', line, col, 'Semántico')
+            return
+        if declaration_type == 'var':
+            self.tabla[id] = symbol
+        elif declaration_type == 'const':
+            self.constants[id] = symbol
 
     def get_variable(self, ast, id, line, col):
         tmp_env = self
         while True:
             if id in tmp_env.tabla:
                 return tmp_env.tabla[id]
+            elif id in tmp_env.constants:
+                return tmp_env.constants[id]
             if tmp_env.previous == None:
                 break
             else:
@@ -31,8 +40,18 @@ class Environment:
         tmp_env = self
         while True:
             if id in tmp_env.tabla:
+                if symbol.type == ExpressionType.NUMBER and tmp_env.tabla[id].type == ExpressionType.FLOAT:
+                    symbol.value = float(symbol.value)
+                elif symbol.type == ExpressionType.NULL:
+                    ast.set_errors(f'Asignación incorrecta: "{id} = null".',
+                                line, col, 'Semántico')
+                    return
                 tmp_env.tabla[id] = symbol
                 return symbol
+            elif id in tmp_env.constants:
+                ast.set_errors(f'Asignación incorrecta: "const {id} = {symbol.value}".',
+                                line, col, 'Semántico')
+                return
             if tmp_env.previous == None:
                 break
             else:

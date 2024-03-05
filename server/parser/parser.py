@@ -4,8 +4,11 @@ import parser.ply.yacc as yacc
 from environment.types import ExpressionType
 from expressions.primitive import Primitive
 from expressions.operation import Operation
+from expressions.access import Access
 
 from instructions.console_log import ConsoleLog
+from instructions.declaration import Declaration
+from instructions.assignment import Assignment
 
 class codeParams:
     def __init__(self, line, column):
@@ -238,6 +241,35 @@ def p_instrucciones_error(p):
     p[0] = p[1]
 
 
+def p_instruccion_declaracion(p):
+    '''instruccion : VAR ID DOSPTS tipo_dato IGUAL expresion PTCOMA
+                   | VAR ID IGUAL expresion PTCOMA
+                   | VAR ID DOSPTS tipo_dato PTCOMA'''
+    params = get_params(p)
+    if p[5] == '=':
+        p[0] = Declaration(params.line, params.column, p[1], p[2], p[4], p[6])
+    elif p[3] == '=':
+        p[0] = Declaration(params.line, params.column, p[1], p[2], exp=p[4])
+    elif p[5] == ';':
+        p[0] = Declaration(params.line, params.column, p[1], p[2], data_type=p[4])
+
+
+def p_instruccion_declaracion_constante(p):
+    '''instruccion : CONST ID DOSPTS tipo_dato IGUAL expresion PTCOMA
+                   | CONST ID IGUAL expresion PTCOMA'''
+    params = get_params(p)
+    if p[5] == '=':
+        p[0] = Declaration(params.line, params.column, p[1], p[2], p[4], p[6])
+    elif p[3] == '=':
+        p[0] = Declaration(params.line, params.column, p[1], p[2], exp=p[4])
+
+
+def p_instruccion_asignacion(p):
+    'instruccion : ID IGUAL expresion PTCOMA'
+    params = get_params(p)
+    p[0] = Assignment(params.line, params.column, p[1], p[3])
+
+
 def p_instruccion_console_log(p):
     '''instruccion : CONSOLE PUNTO LOG PARIZQ lista_expresiones PARDER PTCOMA
                    | CONSOLE PUNTO LOG PARIZQ PARDER PTCOMA'''
@@ -258,7 +290,25 @@ def p_lista_expresiones(p):
         p[0] = [p[1]]
 
 
-def p_expresion(p):
+def p_tipo_dato(p):
+    '''tipo_dato : NUMBER
+                 | FLOAT
+                 | STRING
+                 | CHAR
+                 | BOOLEAN'''
+    if p[1] == 'number':
+        p[0] = ExpressionType.NUMBER
+    elif p[1] == 'float': 
+        p[0] = ExpressionType.FLOAT
+    elif p[1] == 'string':
+        p[0] = ExpressionType.STRING
+    elif p[1] == 'char':
+        p[0] = ExpressionType.CHAR
+    elif p[1] == 'boolean':
+        p[0] = ExpressionType.BOOLEAN
+
+
+def p_expresion_entero(p):
     '''expresion : ENTERO
                  | DECIMAL
                  | TRUE
@@ -266,6 +316,12 @@ def p_expresion(p):
                  | CADENA
                  | CARACTER'''
     p[0] = p[1]
+
+
+def p_expresion_id(p):
+    'expresion : ID'
+    params = get_params(p)
+    p[0] = Access(params.line, params.column, p[1])
 
 
 def p_expresion_aritmetica(p):
