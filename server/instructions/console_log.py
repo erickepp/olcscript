@@ -15,6 +15,12 @@ class ConsoleLog(Instruction):
                 output += str(sym.value).lower() + ' '
             elif sym.type == ExpressionType.NULL:
                 output += 'null '
+            elif sym.type == ExpressionType.ARRAY:
+                if sym.value is not None:
+                    array = [str(element.value) for element in sym.value]
+                    output += f'[{', '.join(array)}] '
+                else:
+                    output += 'null '
             else:
                 output += str(sym.value) + ' '
         ast.set_console(output)

@@ -15,7 +15,7 @@ class Environment:
             ast.set_errors(f'La variable "{id}" ya existe.', line, col, 'Semántico')
             return
         elif symbol.type == ExpressionType.NULL:
-            ast.set_errors(f'Asignación incorrecta: "{id} = null".', line, col, 'Semántico')
+            ast.set_errors(f'Declaración incorrecta: "{id} = null".', line, col, 'Semántico')
             return
         if declaration_type == 'var':
             self.tabla[id] = symbol
@@ -42,15 +42,16 @@ class Environment:
             if id in tmp_env.tabla:
                 if symbol.type == ExpressionType.NUMBER and tmp_env.tabla[id].type == ExpressionType.FLOAT:
                     symbol.value = float(symbol.value)
-                elif symbol.type == ExpressionType.NULL:
-                    ast.set_errors(f'Asignación incorrecta: "{id} = null".',
-                                line, col, 'Semántico')
+                    symbol.type = ExpressionType.FLOAT
+                elif symbol.type != tmp_env.tabla[id].type:
+                    ast.set_errors(f'Asignación incorrecta: \
+                                   "{id}: {tmp_env.tabla[id].type.name.lower()} = {symbol.value}"',
+                                   line, col, 'Semántico')
                     return
                 tmp_env.tabla[id] = symbol
                 return symbol
             elif id in tmp_env.constants:
-                ast.set_errors(f'Asignación incorrecta: "const {id} = {symbol.value}".',
-                                line, col, 'Semántico')
+                ast.set_errors(f'No se puede modificar la constante "{id}".' ,line, col, 'Semántico')
                 return
             if tmp_env.previous == None:
                 break

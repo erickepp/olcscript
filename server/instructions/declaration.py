@@ -16,8 +16,10 @@ class Declaration(Instruction):
             result = self.exp.ejecutar(ast, env)
             if result.type == ExpressionType.NUMBER and self.data_type == ExpressionType.FLOAT:
                 result.value = float(result.value)
+                result.type = self.data_type
             elif result.type != self.data_type:
-                ast.set_errors(f'Declaración incorrecta: "{self.data_type.name} = {result.value}"',
+                ast.set_errors(f'Declaración incorrecta: \
+                               "{self.id}: {self.data_type.name.lower()} = {result.value}"',
                                self.line, self.col, 'Semántico')
                 return
             env.save_variable(ast, self.id, result, self.line, self.col, self.declaration_type)

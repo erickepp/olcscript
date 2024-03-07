@@ -5,10 +5,13 @@ from environment.types import ExpressionType
 from expressions.primitive import Primitive
 from expressions.operation import Operation
 from expressions.access import Access
+from expressions.array import Array
+from expressions.array_access import ArrayAccess
 
 from instructions.console_log import ConsoleLog
 from instructions.declaration import Declaration
 from instructions.assignment import Assignment
+from instructions.array_declaration import ArrayDeclaration
 
 class codeParams:
     def __init__(self, line, column):
@@ -243,7 +246,9 @@ def p_instrucciones_error(p):
 
 def p_instruccion_declaracion(p):
     '''instruccion : VAR ID DOSPTS tipo_dato IGUAL expresion PTCOMA
+                   | CONST ID DOSPTS tipo_dato IGUAL expresion PTCOMA
                    | VAR ID IGUAL expresion PTCOMA
+                   | CONST ID IGUAL expresion PTCOMA
                    | VAR ID DOSPTS tipo_dato PTCOMA'''
     params = get_params(p)
     if p[5] == '=':
@@ -254,20 +259,44 @@ def p_instruccion_declaracion(p):
         p[0] = Declaration(params.line, params.column, p[1], p[2], data_type=p[4])
 
 
-def p_instruccion_declaracion_constante(p):
-    '''instruccion : CONST ID DOSPTS tipo_dato IGUAL expresion PTCOMA
-                   | CONST ID IGUAL expresion PTCOMA'''
-    params = get_params(p)
-    if p[5] == '=':
-        p[0] = Declaration(params.line, params.column, p[1], p[2], p[4], p[6])
-    elif p[3] == '=':
-        p[0] = Declaration(params.line, params.column, p[1], p[2], exp=p[4])
-
-
 def p_instruccion_asignacion(p):
     'instruccion : ID IGUAL expresion PTCOMA'
     params = get_params(p)
     p[0] = Assignment(params.line, params.column, p[1], p[3])
+
+
+def p_instruccion_declaracion_array(p):
+    '''instruccion : VAR ID DOSPTS tipo_dato CORIZQ CORDER IGUAL expresion PTCOMA
+                   | CONST ID DOSPTS tipo_dato CORIZQ CORDER IGUAL expresion PTCOMA
+                   | VAR ID DOSPTS tipo_dato CORIZQ CORDER PTCOMA'''
+    params = get_params(p)
+    if p[7] == '=':
+        p[0] = ArrayDeclaration(params.line, params.column, p[1], p[2], p[4], p[8])
+    elif p[7] == ';':
+        p[0] = ArrayDeclaration(params.line, params.column, p[1], p[2], p[4])
+
+
+def p_expresion_array(p):
+    '''expresion : CORIZQ lista_expresiones CORDER
+                 | CORIZQ CORDER'''
+    params = get_params(p)
+    if len(p) > 3:
+        p[0] = Array(params.line, params.column, p[2])
+    else:
+        p[0] = Array(params.line, params.column, [])
+
+
+def p_expresion_lista_array(p):
+    '''lista_array : lista_array CORIZQ expresion CORDER
+                   | lista_array PUNTO ID
+                   | ID'''
+    params = get_params(p)
+    if len(p) > 4:
+        p[0] = ArrayAccess(params.line, params.column, p[1], p[3])
+    elif len(p) > 2:
+        pass
+    else:
+        p[0] = Access(params.line, params.column, p[1])
 
 
 def p_instruccion_console_log(p):
@@ -308,20 +337,15 @@ def p_tipo_dato(p):
         p[0] = ExpressionType.BOOLEAN
 
 
-def p_expresion_entero(p):
+def p_expresion(p):
     '''expresion : ENTERO
                  | DECIMAL
                  | TRUE
                  | FALSE
                  | CADENA
-                 | CARACTER'''
+                 | CARACTER
+                 | lista_array'''
     p[0] = p[1]
-
-
-def p_expresion_id(p):
-    'expresion : ID'
-    params = get_params(p)
-    p[0] = Access(params.line, params.column, p[1])
 
 
 def p_expresion_aritmetica(p):
