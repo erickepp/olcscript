@@ -7,11 +7,16 @@ from expressions.operation import Operation
 from expressions.access import Access
 from expressions.array import Array
 from expressions.array_access import ArrayAccess
+from expressions.pop import Pop
+from expressions.index_of import IndexOf
+from expressions.join import Join
+from expressions.length import Length
 
 from instructions.console_log import ConsoleLog
 from instructions.declaration import Declaration
 from instructions.assignment import Assignment
 from instructions.array_declaration import ArrayDeclaration
+from instructions.push import Push
 
 class codeParams:
     def __init__(self, line, column):
@@ -260,7 +265,7 @@ def p_instruccion_declaracion(p):
 
 
 def p_instruccion_asignacion(p):
-    'instruccion : ID IGUAL expresion PTCOMA'
+    'instruccion : acceso IGUAL expresion PTCOMA'
     params = get_params(p)
     p[0] = Assignment(params.line, params.column, p[1], p[3])
 
@@ -286,10 +291,40 @@ def p_expresion_array(p):
         p[0] = Array(params.line, params.column, [])
 
 
-def p_expresion_lista_array(p):
-    '''lista_array : lista_array CORIZQ expresion CORDER
-                   | lista_array PUNTO ID
-                   | ID'''
+def p_instruccion_push(p):
+    'instruccion : acceso PUNTO PUSH PARIZQ expresion PARDER PTCOMA'
+    params = get_params(p)
+    p[0] = Push(params.line, params.column, p[1], p[5])
+
+
+def p_expresion_pop(p):
+    'expresion : acceso PUNTO POP PARIZQ PARDER'
+    params = get_params(p)
+    p[0] = Pop(params.line, params.column, p[1])
+
+
+def p_expresion_index_of(p):
+    'expresion : acceso PUNTO INDEXOF PARIZQ expresion PARDER'
+    params = get_params(p)
+    p[0] = IndexOf(params.line, params.column, p[1], p[5])
+
+
+def p_expresion_join(p):
+    'expresion : acceso PUNTO JOIN PARIZQ PARDER'
+    params = get_params(p)
+    p[0] = Join(params.line, params.column, p[1])
+
+
+def p_expresion_length(p):
+    'expresion : acceso PUNTO LENGTH'
+    params = get_params(p)
+    p[0] = Length(params.line, params.column, p[1])
+
+
+def p_expresion_acceso(p):
+    '''acceso : acceso CORIZQ expresion CORDER
+              | acceso PUNTO ID
+              | ID'''
     params = get_params(p)
     if len(p) > 4:
         p[0] = ArrayAccess(params.line, params.column, p[1], p[3])
@@ -344,7 +379,7 @@ def p_expresion(p):
                  | FALSE
                  | CADENA
                  | CARACTER
-                 | lista_array'''
+                 | acceso'''
     p[0] = p[1]
 
 

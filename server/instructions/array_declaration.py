@@ -14,6 +14,10 @@ class ArrayDeclaration(Instruction):
     def ejecutar(self, ast, env):
         if self.exp:
             result = self.exp.ejecutar(ast, env)
+            if result.type != ExpressionType.ARRAY:
+                ast.set_errors(f'La expresión "{result.value}" no es un array',
+                               self.line, self.col, 'Semántico')
+                return
             for res in result.value:
                 if res.type != self.data_type:
                     ast.set_errors(f'El array "{self.id}" contiene tipos incorrectos.',
