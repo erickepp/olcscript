@@ -17,6 +17,7 @@ from expressions.to_string import ToString
 from expressions.lower_case import LowerCase
 from expressions.upper_case import UpperCase
 from expressions.typeof import Typeof
+from expressions.ternary import Ternary
 
 from instructions.console_log import ConsoleLog
 from instructions.declaration import Declaration
@@ -228,7 +229,7 @@ precedence = (
     ('left', 'AND'),
     ('right', 'NOT', 'TYPEOF'),
     ('left', 'MAYQUE', 'MENQUE', 'MAYIGQUE', 'MENIGQUE', 'DOBLEIG', 'NOIG'),
-    ('left', 'MAS', 'MENOS'),
+    ('left', 'MAS', 'MENOS', 'DOSPTS'),
     ('left', 'POR', 'DIVIDIDO', 'MODULO'),
     ('right', 'UMENOS'),
 )
@@ -338,6 +339,12 @@ def p_expresion_acceso(p):
         pass
     else:
         p[0] = Access(params.line, params.column, p[1])
+
+
+def p_expresion_ternario(p):
+    'expresion : expresion INTDER expresion DOSPTS expresion'
+    params = get_params(p)
+    p[0] = Ternary(params.line, params.column, p[1], p[3], p[5])
 
 
 def p_instruccion_console_log(p):
