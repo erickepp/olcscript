@@ -1,1 +1,3 @@
 # OLCScript
+OLCScript es un lenguaje de programación basado en el popular Typescript, conocido por su versatilidad al ser un lenguaje multiparadigma que ha ganado considerable popularidad gracias a su sintaxis moderna y diversas características distintivas. Este lenguaje no sólo hereda las ventajas de Typescript, sino que también incorpora funcionalidades avanzadas,
+como programación funcional, tipado estático, inferencia de tipos, entre otras. Estas características lo convierten en una herramienta moderna y eficiente, haciéndolo idóneo para su estudio y comprensión, especialmente en entornos de laboratorio.
