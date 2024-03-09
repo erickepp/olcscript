@@ -23,6 +23,6 @@ class IndexOf(Expression):
         arr = [element.value for element in sym.value]
         try:
             index = arr.index(element.value)
-            return Symbol(0, 0, index, ExpressionType.NUMBER)
+            return Symbol(self.line, self.col, index, ExpressionType.NUMBER)
         except ValueError:
-            return Symbol(0, 0, -1, ExpressionType.NUMBER)
+            return Symbol(self.line, self.col, -1, ExpressionType.NUMBER)

@@ -11,6 +11,12 @@ from expressions.pop import Pop
 from expressions.index_of import IndexOf
 from expressions.join import Join
 from expressions.length import Length
+from expressions.parse_int import ParseInt
+from expressions.parse_float import ParseFloat
+from expressions.to_string import ToString
+from expressions.lower_case import LowerCase
+from expressions.upper_case import UpperCase
+from expressions.typeof import Typeof
 
 from instructions.console_log import ConsoleLog
 from instructions.declaration import Declaration
@@ -220,7 +226,7 @@ def t_error(t):
 precedence = (
     ('left', 'OR'),
     ('left', 'AND'),
-    ('right', 'NOT'),
+    ('right', 'NOT', 'TYPEOF'),
     ('left', 'MAYQUE', 'MENQUE', 'MAYIGQUE', 'MENIGQUE', 'DOBLEIG', 'NOIG'),
     ('left', 'MAS', 'MENOS'),
     ('left', 'POR', 'DIVIDIDO', 'MODULO'),
@@ -352,6 +358,48 @@ def p_lista_expresiones(p):
         p[0] = p[1]
     else:
         p[0] = [p[1]]
+
+
+def p_expresion_parse_int(p):
+    'expresion : PARSEINT PARIZQ expresion PARDER'
+    params = get_params(p)
+    p[0] = ParseInt(params.line, params.column, p[3])
+
+
+def p_expresion_parse_float(p):
+    'expresion : PARSEFLOAT PARIZQ expresion PARDER'
+    params = get_params(p)
+    p[0] = ParseFloat(params.line, params.column, p[3])
+
+
+def p_expresion_to_string(p):
+    '''expresion : ENTERO PUNTO TOSTRING PARIZQ PARDER
+                 | DECIMAL PUNTO TOSTRING PARIZQ PARDER
+                 | TRUE PUNTO TOSTRING PARIZQ PARDER
+                 | FALSE PUNTO TOSTRING PARIZQ PARDER
+                 | acceso PUNTO TOSTRING PARIZQ PARDER'''
+    params = get_params(p)
+    p[0] = ToString(params.line, params.column, p[1])
+
+
+def p_expresion_to_lower_case(p):
+    '''expresion : CADENA PUNTO TOLOWERCASE PARIZQ PARDER
+                 | acceso PUNTO TOLOWERCASE PARIZQ PARDER'''
+    params = get_params(p)
+    p[0] = LowerCase(params.line, params.column, p[1])
+
+
+def p_expresion_to_upper_case(p):
+    '''expresion : CADENA PUNTO TOUPPERCASE PARIZQ PARDER
+                 | acceso PUNTO TOUPPERCASE PARIZQ PARDER'''
+    params = get_params(p)
+    p[0] = UpperCase(params.line, params.column, p[1])
+
+
+def p_expresion_typeof(p):
+    'expresion : TYPEOF expresion'
+    params = get_params(p)
+    p[0] = Typeof(params.line, params.column, p[2])
 
 
 def p_tipo_dato(p):

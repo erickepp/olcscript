@@ -19,4 +19,4 @@ class Length(Expression):
                            self.line, self.col, 'Semántico')
             return Symbol(0, 0, None, ExpressionType.NULL)
         length = len(sym.value)
-        return Symbol(0, 0, length, ExpressionType.NUMBER)
+        return Symbol(self.line, self.col, length, ExpressionType.NUMBER)

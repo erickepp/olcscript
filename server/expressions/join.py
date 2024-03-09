@@ -19,4 +19,4 @@ class Join(Expression):
                            self.line, self.col, 'Semántico')
             return Symbol(0, 0, None, ExpressionType.NULL)
         str_array = ', '.join([str(element.value) for element in sym.value])
-        return Symbol(0, 0, str_array, ExpressionType.STRING)
+        return Symbol(self.line, self.col, str_array, ExpressionType.STRING)
