@@ -5,6 +5,7 @@ from flask_cors import CORS
 from parser.parser import Parser
 from environment.ast import Ast
 from environment.environment import Environment
+from environment.execute import root_executer
 
 load_dotenv()
 
@@ -24,10 +25,7 @@ def interpreter():
     ast = Ast()
     parser = Parser(ast)
     instructions = parser.interpretar(input_data)
-
-    for inst in instructions or []:
-        inst.ejecutar(ast, env)
-
+    root_executer(instructions, ast, env)
     return jsonify({
         'output': ast.get_console(),
         'errors': ast.get_errors(),

@@ -33,7 +33,7 @@ class Environment:
                 break
             else:
                 tmp_env = tmp_env.previous
-        ast.set_errors(f'La variable "{id}" no existe', line, col, 'Semántico')
+        ast.set_errors(f'La variable "{id}" no está definida.', line, col, 'Semántico')
         return Symbol(0, 0, None, ExpressionType.NULL)
 
     def set_variable(self, ast, id, symbol, line, col):
@@ -57,5 +57,5 @@ class Environment:
                 break
             else:
                 tmp_env = tmp_env.previous
-        ast.set_errors(f'La variable "{id}" no existe', line, col, 'Semántico')
+        ast.set_errors(f'La variable "{id}" no está definida.', line, col, 'Semántico')
         return Symbol(0, 0, None, ExpressionType.NULL)
