@@ -10,7 +10,6 @@ function SymbolTable() {
       <td>{symbol.dataType}</td>
       <td>{symbol.scope}</td>
       <td>{symbol.line}</td>
-      <td>{symbol.column}</td>
     </tr>
   ));
 
@@ -30,7 +29,6 @@ function SymbolTable() {
             <th scope="col">Tipo dato</th>
             <th scope="col">Ámbito</th>
             <th scope="col">Línea</th>
-            <th scope="col">Columna</th>
           </tr>
         </thead>
         <tbody>{rows}</tbody>

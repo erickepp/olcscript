@@ -29,7 +29,7 @@ def interpreter():
     return jsonify({
         'output': ast.get_console(),
         'errors': ast.get_errors(),
-        'symbolTable': []
+        'symbolTable': ast.get_symbols()
     })
 
 

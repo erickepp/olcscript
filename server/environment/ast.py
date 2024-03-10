@@ -3,6 +3,7 @@ class Ast:
         self.instructions = []
         self.console = ''
         self.errors = []
+        self.symbols = []
 
     def set_console(self, content):
         self.console += content + '\n'
@@ -26,3 +27,15 @@ class Ast:
     
     def get_errors(self):
         return self.errors
+    
+    def set_symbols(self, id, symbol_type, data_type, scope, line):
+        self.symbols.append({
+            'id': id,
+            'symbolType': symbol_type,
+            'dataType': data_type,
+            'scope': scope,
+            'line': line
+        })
+
+    def get_symbols(self):
+        return self.symbols

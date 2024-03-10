@@ -19,8 +19,10 @@ class Environment:
             return
         if declaration_type == 'var':
             self.tabla[id] = symbol
+            ast.set_symbols(id, 'Variable', symbol.type.name.lower(), self.id, line)
         elif declaration_type == 'const':
             self.constants[id] = symbol
+            ast.set_symbols(id, 'Constante', symbol.type.name.lower(), self.id, line)
 
     def get_variable(self, ast, id, line, col):
         tmp_env = self
