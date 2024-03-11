@@ -27,6 +27,7 @@ from instructions.push import Push
 from instructions.if_instruction import If
 from instructions.else_if_instruction import ElseIf
 from instructions.else_instruction import Else
+from instructions.while_instruction import While
 
 class codeParams:
     def __init__(self, line, column):
@@ -375,6 +376,12 @@ def p_else(p):
         p[0] = Else(params.line, params.column, p[3])
     else:
         p[0] = None
+
+
+def p_instruccion_while(p):
+    'instruccion : WHILE PARIZQ expresion PARDER LLAVIZQ instrucciones LLAVDER'
+    params = get_params(p)
+    p[0] = While(params.line, params.column, p[3], p[6])
 
 
 def p_instruccion_console_log(p):
