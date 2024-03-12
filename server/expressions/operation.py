@@ -34,6 +34,8 @@ class Operation(Expression):
                 return ExpressionType.BOOLEAN
             elif op1.type == ExpressionType.CHAR and op2.type == ExpressionType.CHAR:
                 return ExpressionType.BOOLEAN
+            elif op1.value in [0, 0.0] and op2.value in [0, 0.0]:
+                return ExpressionType.BOOLEAN
         elif self.operador in ['&&', '||']:
             if op1.type == ExpressionType.BOOLEAN and op2.type == ExpressionType.BOOLEAN:
                 return ExpressionType.BOOLEAN

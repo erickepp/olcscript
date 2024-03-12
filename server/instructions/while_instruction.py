@@ -23,6 +23,8 @@ class While(Instruction):
             result = self.exp.ejecutar(ast, env)
             if result.value:
                 while_env = Environment(env, 'WHILE')
+                while_env.tabla.clear()
+                while_env.constants.clear()
                 statement_executer(self.block, ast, while_env)
             else:
                 break

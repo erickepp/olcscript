@@ -28,6 +28,8 @@ from instructions.if_instruction import If
 from instructions.else_if_instruction import ElseIf
 from instructions.else_instruction import Else
 from instructions.while_instruction import While
+from instructions.for_instruction import For
+from instructions.for_each_instruction import ForEach
 
 class codeParams:
     def __init__(self, line, column):
@@ -224,7 +226,8 @@ t_ignore = ' \t\r'
 
 def t_error(t):
     params = get_params(t)
-    ast.set_errors(f'El carácter "{t.value[0]}" no pertenece al lenguaje.', params.line, params.column, 'Léxico')
+    ast.set_errors(f'El carácter "{t.value[0]}" no pertenece al lenguaje.',
+                   params.line, params.column, 'Léxico')
     t.lexer.skip(1)
 
 
@@ -382,6 +385,19 @@ def p_instruccion_while(p):
     'instruccion : WHILE PARIZQ expresion PARDER LLAVIZQ instrucciones LLAVDER'
     params = get_params(p)
     p[0] = While(params.line, params.column, p[3], p[6])
+
+
+def p_instruccion_for(p):
+    '''instruccion : FOR PARIZQ VAR ID DOSPTS NUMBER IGUAL expresion PTCOMA \
+                   expresion PTCOMA ID MAS MAS PARDER LLAVIZQ instrucciones LLAVDER'''
+    params = get_params(p)
+    p[0] = For(params.line, params.column, p[4], p[8], p[10], p[12], p[17])
+
+
+def p_instruccion_for_each(p):
+    'instruccion : FOR PARIZQ VAR ID OF expresion PARDER LLAVIZQ instrucciones LLAVDER'
+    params = get_params(p)
+    p[0] = ForEach(params.line, params.column, p[4], p[6], p[9])
 
 
 def p_instruccion_console_log(p):

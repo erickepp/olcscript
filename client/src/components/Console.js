@@ -9,7 +9,7 @@ function Console({ output }) {
         fontFamily: "Consolas, 'Courier New', monospace",
         fontSize: "14px",
         overflowY: "auto",
-        whiteSpace: "pre-line"
+        whiteSpace: "pre-wrap"
       }}
     >
       {output}
