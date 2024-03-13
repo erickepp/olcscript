@@ -61,3 +61,14 @@ class Environment:
                 tmp_env = tmp_env.previous
         ast.set_errors(f'La variable "{id}" no está definida.', line, col, 'Semántico')
         return Symbol(0, 0, None, ExpressionType.NULL)
+
+    def loop_validation(self):
+        tmpEnv = self
+        while True:
+            if tmpEnv.id in ['WHILE', 'FOR']:
+                return True
+            if tmpEnv.previous == None:
+                break
+            else:
+                tmpEnv = tmpEnv.previous
+        return False

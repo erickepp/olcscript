@@ -18,6 +18,7 @@ class If(Instruction):
             ast.set_errors(f'Expresión incorrecta: "{validate.value} no es boolean".',
                             self.line, self.col, 'Semántico')
             return
+        
         if validate.value:
             if_env = Environment(env, 'IF')
             statement_executer(self.block, ast, if_env)

@@ -25,7 +25,10 @@ class While(Instruction):
                 while_env = Environment(env, 'WHILE')
                 while_env.tabla.clear()
                 while_env.constants.clear()
-                statement_executer(self.block, ast, while_env)
+                flag = statement_executer(self.block, ast, while_env)
+                if flag is not None:
+                    if flag.type == ExpressionType.BREAK:
+                        break
             else:
                 break
             if safe_cont >= 1000:

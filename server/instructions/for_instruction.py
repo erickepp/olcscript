@@ -35,6 +35,11 @@ class For(Instruction):
         while result.value:
             for_env.tabla = dict([next(iter(for_env.tabla.items()))])
             for_env.constants.clear()
-            statement_executer(self.block, ast, for_env)
+            
+            flag = statement_executer(self.block, ast, for_env)
+            if flag is not None:
+                if flag.type == ExpressionType.BREAK:
+                    break
+
             sym.value += 1
             result = self.exp2.ejecutar(ast, for_env)

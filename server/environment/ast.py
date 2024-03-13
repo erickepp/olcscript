@@ -38,11 +38,4 @@ class Ast:
         })
 
     def get_symbols(self):
-        new_symbols = []
-        seen_pairs = set()
-        for symbol in self.symbols:
-            tuple_symbol = tuple(symbol.items())
-            if tuple_symbol not in seen_pairs:
-                seen_pairs.add(tuple_symbol)
-                new_symbols.append(symbol)
-        return new_symbols
+        return self.symbols

@@ -4,4 +4,7 @@ def root_executer(instruction_list, ast, env):
 
 def statement_executer(instruction_list, ast, env):
     for inst in instruction_list:
-        inst.ejecutar(ast, env)
+        res = inst.ejecutar(ast, env)
+        if res is not None:
+            return res
+    return None

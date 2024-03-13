@@ -18,6 +18,7 @@ from expressions.lower_case import LowerCase
 from expressions.upper_case import UpperCase
 from expressions.typeof import Typeof
 from expressions.ternary import Ternary
+from expressions.break_statement import Break
 
 from instructions.console_log import ConsoleLog
 from instructions.declaration import Declaration
@@ -27,6 +28,7 @@ from instructions.push import Push
 from instructions.if_instruction import If
 from instructions.else_if_instruction import ElseIf
 from instructions.else_instruction import Else
+from instructions.switch_instruction import Switch, Case, Default
 from instructions.while_instruction import While
 from instructions.for_instruction import For
 from instructions.for_each_instruction import ForEach
@@ -381,6 +383,33 @@ def p_else(p):
         p[0] = None
 
 
+def p_instruccion_switch(p):
+    'instruccion : SWITCH PARIZQ expresion PARDER LLAVIZQ lista_case default LLAVDER'
+    params = get_params(p)
+    p[0] = Switch(params.line, params.column, p[3], p[6], p[7])
+
+
+def p_lista_case(p):
+    '''lista_case : lista_case CASE expresion DOSPTS instrucciones
+                  |'''
+    if len(p) > 1:
+        params = get_params(p)
+        p[1].append(Case(params.line, params.column, p[3], p[5]))
+        p[0] = p[1]
+    else:
+        p[0] = []
+
+
+def p_default(p):
+    '''default : DEFAULT DOSPTS instrucciones
+               |'''
+    params = get_params(p)
+    if len(p) > 1:
+        p[0] = Default(params.line, params.column, p[3])
+    else:
+        p[0] = None
+
+
 def p_instruccion_while(p):
     'instruccion : WHILE PARIZQ expresion PARDER LLAVIZQ instrucciones LLAVDER'
     params = get_params(p)
@@ -398,6 +427,12 @@ def p_instruccion_for_each(p):
     'instruccion : FOR PARIZQ VAR ID OF expresion PARDER LLAVIZQ instrucciones LLAVDER'
     params = get_params(p)
     p[0] = ForEach(params.line, params.column, p[4], p[6], p[9])
+
+
+def p_instruccion_break(p):
+    'instruccion : BREAK PTCOMA'
+    params = get_params(p)
+    p[0] = Break(params.line, params.column)
 
 
 def p_instruccion_console_log(p):

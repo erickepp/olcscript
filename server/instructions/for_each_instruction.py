@@ -26,7 +26,12 @@ class ForEach(Instruction):
         for sym in array_sym.value:
             for_env.tabla.clear()
             for_env.constants.clear()
+
             primitive = Primitive(sym.line, sym.col, sym.value, sym.type)
             declaration = Declaration(self.line, self.col, 'const', self.id, exp=primitive)
             declaration.ejecutar(ast, for_env)
-            statement_executer(self.block, ast, for_env)
+            
+            flag = statement_executer(self.block, ast, for_env)
+            if flag is not None:
+                if flag.type == ExpressionType.BREAK:
+                    break

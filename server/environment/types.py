@@ -8,3 +8,4 @@ class ExpressionType(Enum):
     CHAR = 4
     ARRAY = 5
     NULL = 6
+    BREAK = 7
