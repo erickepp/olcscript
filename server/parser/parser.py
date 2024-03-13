@@ -25,9 +25,7 @@ from instructions.declaration import Declaration
 from instructions.assignment import Assignment
 from instructions.array_declaration import ArrayDeclaration
 from instructions.push import Push
-from instructions.if_instruction import If
-from instructions.else_if_instruction import ElseIf
-from instructions.else_instruction import Else
+from instructions.if_instruction import If, ElseIf, Else
 from instructions.switch_instruction import Switch, Case, Default
 from instructions.while_instruction import While
 from instructions.for_instruction import For

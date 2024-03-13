@@ -26,7 +26,7 @@ class While(Instruction):
                 while_env.tabla.clear()
                 while_env.constants.clear()
                 flag = statement_executer(self.block, ast, while_env)
-                if flag is not None:
+                if flag:
                     if flag.type == ExpressionType.BREAK:
                         break
             else:

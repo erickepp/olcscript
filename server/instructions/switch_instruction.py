@@ -10,7 +10,7 @@ class Switch(Instruction):
         self.exp = exp
         self.case_list = case_list
         self.default_instruction = default_instruction
-    
+
     def ejecutar(self, ast, env):
         switch_exp = self.exp.ejecutar(ast, env)
         switch_env = Environment(env, 'SWITCH_CASE')
@@ -26,14 +26,13 @@ class Switch(Instruction):
 
             if switch_exp.value == case_exp.value or flag_case:
                 flag_case = True
-                flag = statement_executer(case.block, ast, switch_env)
-                if flag is not None:
-                    if flag.type == ExpressionType.BREAK:
-                        return
+                return_value = statement_executer(case.block, ast, switch_env)
+                if return_value: return return_value
         
         if self.default_instruction:
             switch_env = Environment(env, 'SWITCH_DEFAULT')
-            statement_executer(self.default_instruction.block, ast, switch_env)
+            return_value = statement_executer(self.default_instruction.block, ast, switch_env)
+            return return_value
         
 
 class Case:

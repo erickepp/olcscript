@@ -62,6 +62,17 @@ class Environment:
         ast.set_errors(f'La variable "{id}" no está definida.', line, col, 'Semántico')
         return Symbol(0, 0, None, ExpressionType.NULL)
 
+    def switch_validation(self):
+        tmpEnv = self
+        while True:
+            if tmpEnv.id in ['SWITCH_CASE', 'SWITCH_DEFAULT']:
+                return True
+            if tmpEnv.previous == None:
+                break
+            else:
+                tmpEnv = tmpEnv.previous
+        return False
+
     def loop_validation(self):
         tmpEnv = self
         while True:

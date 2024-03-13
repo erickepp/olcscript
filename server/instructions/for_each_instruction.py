@@ -32,6 +32,6 @@ class ForEach(Instruction):
             declaration.ejecutar(ast, for_env)
             
             flag = statement_executer(self.block, ast, for_env)
-            if flag is not None:
+            if flag:
                 if flag.type == ExpressionType.BREAK:
                     break

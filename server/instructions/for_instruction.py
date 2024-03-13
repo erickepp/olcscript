@@ -37,7 +37,7 @@ class For(Instruction):
             for_env.constants.clear()
             
             flag = statement_executer(self.block, ast, for_env)
-            if flag is not None:
+            if flag:
                 if flag.type == ExpressionType.BREAK:
                     break
 
