@@ -19,6 +19,7 @@ from expressions.upper_case import UpperCase
 from expressions.typeof import Typeof
 from expressions.ternary import Ternary
 from expressions.break_statement import Break
+from expressions.continue_statement import Continue
 
 from instructions.console_log import ConsoleLog
 from instructions.declaration import Declaration
@@ -431,6 +432,12 @@ def p_instruccion_break(p):
     'instruccion : BREAK PTCOMA'
     params = get_params(p)
     p[0] = Break(params.line, params.column)
+
+
+def p_instruccion_continue(p):
+    'instruccion : CONTINUE PTCOMA'
+    params = get_params(p)
+    p[0] = Continue(params.line, params.column)
 
 
 def p_instruccion_console_log(p):

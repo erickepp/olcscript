@@ -40,6 +40,8 @@ class For(Instruction):
             if flag:
                 if flag.type == ExpressionType.BREAK:
                     break
+                elif flag.type == ExpressionType.CONTINUE:
+                    pass
 
             sym.value += 1
             result = self.exp2.ejecutar(ast, for_env)

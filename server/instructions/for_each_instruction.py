@@ -35,3 +35,5 @@ class ForEach(Instruction):
             if flag:
                 if flag.type == ExpressionType.BREAK:
                     break
+                elif flag.type == ExpressionType.CONTINUE:
+                    continue
