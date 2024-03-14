@@ -26,6 +26,8 @@ from instructions.declaration import Declaration
 from instructions.assignment import Assignment
 from instructions.array_declaration import ArrayDeclaration
 from instructions.push import Push
+from instructions.increment import Increment
+from instructions.decrement import Decrement
 from instructions.if_instruction import If, ElseIf, Else
 from instructions.switch_instruction import Switch, Case, Default
 from instructions.while_instruction import While
@@ -347,6 +349,18 @@ def p_expresion_acceso(p):
         pass
     else:
         p[0] = Access(params.line, params.column, p[1])
+
+
+def p_instruccion_incremento(p):
+    'instruccion : acceso INCREMENTO expresion PTCOMA'
+    params = get_params(p)
+    p[0] = Increment(params.line, params.column, p[1], p[3])
+
+
+def p_instruccion_decremento(p):
+    'instruccion : acceso DECREMENTO expresion PTCOMA'
+    params = get_params(p)
+    p[0] = Decrement(params.line, params.column, p[1], p[3])
 
 
 def p_expresion_ternario(p):
