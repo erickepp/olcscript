@@ -11,6 +11,20 @@ class ArrayDeclaration(Instruction):
         self.data_type = data_type
         self.exp = exp
 
+    def validate_types(self, array):
+        validate = False
+        for element in array:
+            if not validate:
+                if isinstance(element.value, list):
+                    validate = self.validate_types(element.value)
+                else:
+                    if element.type != self.data_type:
+                        validate = True
+                        break
+            else:
+                break
+        return validate
+
     def ejecutar(self, ast, env):
         if self.exp:
             result = self.exp.ejecutar(ast, env)
@@ -18,11 +32,10 @@ class ArrayDeclaration(Instruction):
                 ast.set_errors(f'La expresión "{result.value}" no es un array',
                                self.line, self.col, 'Semántico')
                 return
-            for res in result.value:
-                if res.type != self.data_type:
-                    ast.set_errors(f'El array "{self.id}" contiene tipos incorrectos.',
-                                   self.line, self.col, 'Semántico')
-                    return
+            if self.validate_types(result.value):
+                ast.set_errors(f'El array "{self.id}" contiene tipos incorrectos.',
+                               self.line, self.col, 'Semántico')
+                return
             env.save_variable(ast, self.id, result, self.line, self.col, self.declaration_type)
         else:
             result = Symbol(0, 0, None, ExpressionType.ARRAY)

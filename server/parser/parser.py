@@ -288,14 +288,20 @@ def p_instruccion_asignacion(p):
 
 
 def p_instruccion_declaracion_array(p):
-    '''instruccion : VAR ID DOSPTS tipo_dato CORIZQ CORDER IGUAL expresion PTCOMA
-                   | CONST ID DOSPTS tipo_dato CORIZQ CORDER IGUAL expresion PTCOMA
-                   | VAR ID DOSPTS tipo_dato CORIZQ CORDER PTCOMA'''
+    '''instruccion : VAR ID DOSPTS tipo_dato dimensiones_array IGUAL expresion PTCOMA
+                   | CONST ID DOSPTS tipo_dato dimensiones_array IGUAL expresion PTCOMA
+                   | VAR ID DOSPTS tipo_dato dimensiones_array PTCOMA'''
     params = get_params(p)
-    if p[7] == '=':
-        p[0] = ArrayDeclaration(params.line, params.column, p[1], p[2], p[4], p[8])
-    elif p[7] == ';':
+    if p[6] == '=':
+        p[0] = ArrayDeclaration(params.line, params.column, p[1], p[2], p[4], p[7])
+    elif p[6] == ';':
         p[0] = ArrayDeclaration(params.line, params.column, p[1], p[2], p[4])
+
+
+def p_dimensiones_array(p):
+    '''dimensiones_array : dimensiones_array CORIZQ CORDER
+                         | CORIZQ CORDER'''
+    pass
 
 
 def p_expresion_array(p):

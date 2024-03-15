@@ -7,6 +7,15 @@ class ConsoleLog(Instruction):
         self.col = col
         self.exp = exp
 
+    def get_str_array(self, array):
+        str_array = []
+        for element in array:
+            if isinstance(element.value, list):
+                str_array.append(self.get_str_array(element.value))
+            else:
+                str_array.append(str(element.value))
+        return f'[{', '.join(str_array)}]'
+
     def ejecutar(self, ast, env):
         output = ''
         for exp in self.exp:
@@ -17,8 +26,7 @@ class ConsoleLog(Instruction):
                 output += 'null '
             elif sym.type == ExpressionType.ARRAY:
                 if sym.value is not None:
-                    array = [str(element.value) for element in sym.value]
-                    output += f'[{', '.join(array)}] '
+                    output += self.get_str_array(sym.value) + ' '
                 else:
                     output += 'null '
             else:
