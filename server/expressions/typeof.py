@@ -10,5 +10,8 @@ class Typeof(Expression):
     
     def ejecutar(self, ast, env):
         sym = self.exp.ejecutar(ast, env)
-        str_type = sym.type.name.lower()
+        if sym.type.name in ['NUMBER', 'FLOAT', 'STRING', 'BOOLEAN', 'CHAR', 'ARRAY', 'NULL']:
+            str_type = sym.type.name.lower()
+        else:
+            str_type = sym.type.name
         return Symbol(self.line, self.col, str_type, ExpressionType.STRING)

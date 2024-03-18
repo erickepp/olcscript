@@ -18,7 +18,7 @@ class ArrayDeclaration(Instruction):
                 if isinstance(element.value, list):
                     validate = self.validate_types(element.value)
                 else:
-                    if element.type != self.data_type:
+                    if element.type.value != self.data_type.value:
                         validate = True
                         break
             else:

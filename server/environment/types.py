@@ -10,3 +10,8 @@ class ExpressionType(Enum):
     NULL = 6
     BREAK = 7
     CONTINUE = 8
+
+class InterfaceType:
+    def __init__(self, value):
+        self.value = value
+        self.name = value

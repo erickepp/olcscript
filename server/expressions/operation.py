@@ -52,31 +52,31 @@ class Operation(Expression):
                     return Symbol(self.line, self.col, op1.value-op2.value, dominant_type)
                 ast.set_errors(f'Operación incorrecta: "{op1.value} - {op2.value}".',
                                self.line, self.col, 'Semántico')
-                return Symbol(self.line, self.col, None, ExpressionType.NULL)
+                return Symbol(0, 0, None, ExpressionType.NULL)
             elif self.operador == '*':
                 if dominant_type in [ExpressionType.NUMBER, ExpressionType.FLOAT]:
                     return Symbol(self.line, self.col, op1.value*op2.value, dominant_type)
                 ast.set_errors(f'Operación incorrecta: "{op1.value} * {op2.value}".',
                                self.line, self.col, 'Semántico')
-                return Symbol(self.line, self.col, None, ExpressionType.NULL)
+                return Symbol(0, 0, None, ExpressionType.NULL)
             elif self.operador == '/':
                 if op2.value == 0:
                     ast.set_errors(f'Operación incorrecta: "{op1.value} / 0".',
                                    self.line, self.col, 'Semántico')
-                    return Symbol(self.line, self.col, None, ExpressionType.NULL)
+                    return Symbol(0, 0, None, ExpressionType.NULL)
                 elif dominant_type == ExpressionType.NUMBER:
                     return Symbol(self.line, self.col, int(op1.value/op2.value), dominant_type)
                 elif dominant_type == ExpressionType.FLOAT:
                     return Symbol(self.line, self.col, op1.value/op2.value, dominant_type)
                 ast.set_errors(f'Operación incorrecta: "{op1.value} / {op2.value}".',
                                self.line, self.col, 'Semántico')
-                return Symbol(self.line, self.col, None, ExpressionType.NULL)
+                return Symbol(0, 0, None, ExpressionType.NULL)
             elif self.operador == '%':
                 if dominant_type == ExpressionType.NUMBER:
                     return Symbol(self.line, self.col, int(op1.value%op2.value), dominant_type)
                 ast.set_errors(f'Operación incorrecta: "{op1.value} % {op2.value}".',
                                self.line, self.col, 'Semántico')
-                return Symbol(self.line, self.col, None, ExpressionType.NULL)
+                return Symbol(0, 0, None, ExpressionType.NULL)
             elif self.operador == '==':
                 return Symbol(self.line, self.col, op1.value==op2.value, dominant_type)
             elif self.operador == '!=':
@@ -100,8 +100,8 @@ class Operation(Expression):
                 return Symbol(self.line, self.col, not op1.value, op1.type)
             ast.set_errors(f'Operación incorrecta: "{self.operador}{op1.value}".',
                            self.line, self.col, 'Semántico')
-            return Symbol(self.line, self.col, None, ExpressionType.NULL)
+            return Symbol(0, 0, None, ExpressionType.NULL)
  
         ast.set_errors(f'Operación incorrecta: "{op1.value} {self.operador} {op2.value}".',
                        self.line, self.col, 'Semántico')
-        return Symbol(self.line, self.col, None, ExpressionType.NULL)
+        return Symbol(0, 0, None, ExpressionType.NULL)

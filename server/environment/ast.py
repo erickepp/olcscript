@@ -29,6 +29,8 @@ class Ast:
         return self.errors
     
     def set_symbols(self, id, symbol_type, data_type, scope, line):
+        if data_type in ['NUMBER', 'FLOAT', 'STRING', 'BOOLEAN', 'CHAR', 'ARRAY']:
+            data_type = data_type.lower()
         self.symbols.append({
             'id': id,
             'symbolType': symbol_type,

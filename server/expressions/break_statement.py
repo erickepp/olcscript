@@ -12,4 +12,4 @@ class Break(Expression):
             return Symbol(self.line, self.col, None, ExpressionType.BREAK)
         ast.set_errors('"break" no se encuentra dentro de un bloque "switch", "while" o "for".',
                        self.line, self.col, 'Semántico')
-        return Symbol(self.line, self.col, None, ExpressionType.NULL)
+        return Symbol(0, 0, None, ExpressionType.NULL)

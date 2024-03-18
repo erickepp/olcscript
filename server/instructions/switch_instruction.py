@@ -27,12 +27,18 @@ class Switch(Instruction):
             if switch_exp.value == case_exp.value or flag_case:
                 flag_case = True
                 return_value = statement_executer(case.block, ast, switch_env)
-                if return_value: return return_value
+                if return_value:
+                    if return_value.type == ExpressionType.BREAK:
+                        return
+                    return return_value
         
         if self.default_instruction:
             switch_env = Environment(env, 'SWITCH_DEFAULT')
             return_value = statement_executer(self.default_instruction.block, ast, switch_env)
-            return return_value
+            if return_value:
+                if return_value.type == ExpressionType.BREAK:
+                    return
+                return return_value
         
 
 class Case:

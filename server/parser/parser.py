@@ -1,7 +1,7 @@
 import parser.ply.lex as lex
 import parser.ply.yacc as yacc
 
-from environment.types import ExpressionType
+from environment.types import ExpressionType, InterfaceType
 from expressions.primitive import Primitive
 from expressions.operation import Operation
 from expressions.access import Access
@@ -11,21 +11,24 @@ from expressions.pop import Pop
 from expressions.index_of import IndexOf
 from expressions.join import Join
 from expressions.length import Length
+from expressions.interface_access import InterfaceAccess
+from expressions.object import Object
+from expressions.ternary import Ternary
+from expressions.break_statement import Break
+from expressions.continue_statement import Continue
 from expressions.parse_int import ParseInt
 from expressions.parse_float import ParseFloat
 from expressions.to_string import ToString
 from expressions.lower_case import LowerCase
 from expressions.upper_case import UpperCase
 from expressions.typeof import Typeof
-from expressions.ternary import Ternary
-from expressions.break_statement import Break
-from expressions.continue_statement import Continue
 
-from instructions.console_log import ConsoleLog
 from instructions.declaration import Declaration
 from instructions.assignment import Assignment
 from instructions.array_declaration import ArrayDeclaration
 from instructions.push import Push
+from instructions.interface import Interface
+from instructions.interface_declaration import InterfaceDeclaration
 from instructions.increment import Increment
 from instructions.decrement import Decrement
 from instructions.if_instruction import If, ElseIf, Else
@@ -33,6 +36,7 @@ from instructions.switch_instruction import Switch, Case, Default
 from instructions.while_instruction import While
 from instructions.for_instruction import For
 from instructions.for_each_instruction import ForEach
+from instructions.console_log import ConsoleLog
 
 class codeParams:
     def __init__(self, line, column):
@@ -288,9 +292,9 @@ def p_instruccion_asignacion(p):
 
 
 def p_instruccion_declaracion_array(p):
-    '''instruccion : VAR ID DOSPTS tipo_dato dimensiones_array IGUAL expresion PTCOMA
-                   | CONST ID DOSPTS tipo_dato dimensiones_array IGUAL expresion PTCOMA
-                   | VAR ID DOSPTS tipo_dato dimensiones_array PTCOMA'''
+    '''instruccion : VAR ID DOSPTS tipo dimensiones_array IGUAL expresion PTCOMA
+                   | CONST ID DOSPTS tipo dimensiones_array IGUAL expresion PTCOMA
+                   | VAR ID DOSPTS tipo dimensiones_array PTCOMA'''
     params = get_params(p)
     if p[6] == '=':
         p[0] = ArrayDeclaration(params.line, params.column, p[1], p[2], p[4], p[7])
@@ -344,6 +348,46 @@ def p_expresion_length(p):
     p[0] = Length(params.line, params.column, p[1])
 
 
+def p_instruccion_interface(p):
+    'instruccion : INTERFACE ID LLAVIZQ lista_atributos LLAVDER'
+    params = get_params(p)
+    p[0] = Interface(params.line, params.column, p[2], p[4])
+
+
+def p_lista_atributos_interface(p):
+    '''lista_atributos : lista_atributos ID DOSPTS tipo PTCOMA
+                       | ID DOSPTS tipo PTCOMA'''
+    if len(p) > 5:
+        p[1].append({p[2]: p[4]})
+        p[0] = p[1]
+    else:
+        p[0] = [{p[1]: p[3]}]
+
+
+def p_instruccion_declaracion_interface(p):
+    '''instruccion : VAR ID DOSPTS ID IGUAL LLAVIZQ contenido_interface LLAVDER PTCOMA
+                   | CONST ID DOSPTS ID IGUAL LLAVIZQ contenido_interface LLAVDER PTCOMA'''
+    params = get_params(p)
+    p[0] = InterfaceDeclaration(params.line, params.column, p[1], p[2], p[4], p[7])
+
+
+def p_contenido_interface(p):
+    '''contenido_interface : contenido_interface COMA ID DOSPTS expresion
+                           | ID DOSPTS expresion'''
+    if len(p) > 5:
+        p[1].append({p[3]: p[5]})
+        p[0] = p[1]
+    else:
+        p[0] = [{p[1]: p[3]}]
+
+
+def p_expresion_object(p):
+    '''expresion : OBJECT PUNTO KEYS PARIZQ expresion PARDER
+                 | OBJECT PUNTO VALUES PARIZQ expresion PARDER'''
+    params = get_params(p)
+    p[0] = Object(params.line, params.column, p[3], p[5])
+
+
 def p_expresion_acceso(p):
     '''acceso : acceso CORIZQ expresion CORDER
               | acceso PUNTO ID
@@ -352,7 +396,7 @@ def p_expresion_acceso(p):
     if len(p) > 4:
         p[0] = ArrayAccess(params.line, params.column, p[1], p[3])
     elif len(p) > 2:
-        pass
+        p[0] = InterfaceAccess(params.line, params.column, p[1], p[3])
     else:
         p[0] = Access(params.line, params.column, p[1])
 
@@ -538,6 +582,15 @@ def p_tipo_dato(p):
         p[0] = ExpressionType.CHAR
     elif p[1] == 'boolean':
         p[0] = ExpressionType.BOOLEAN
+
+
+def p_tipo(p):
+    '''tipo : tipo_dato
+            | ID'''
+    if isinstance(p[1], ExpressionType):
+        p[0] = p[1]
+    else:
+        p[0] = InterfaceType(p[1])
 
 
 def p_expresion(p):

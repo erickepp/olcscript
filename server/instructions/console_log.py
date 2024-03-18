@@ -13,7 +13,10 @@ class ConsoleLog(Instruction):
             if isinstance(element.value, list):
                 str_array.append(self.get_str_array(element.value))
             else:
-                str_array.append(str(element.value))
+                value = element.value
+                if isinstance(value, str):
+                    value = f'\'{value}\''
+                str_array.append(str(value))
         return f'[{', '.join(str_array)}]'
 
     def ejecutar(self, ast, env):

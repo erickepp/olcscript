@@ -12,4 +12,4 @@ class Continue(Expression):
             return Symbol(self.line, self.col, None, ExpressionType.CONTINUE)
         ast.set_errors('"continue" no se encuentra dentro de un bloque "while" o "for".',
                        self.line, self.col, 'Semántico')
-        return Symbol(self.line, self.col, None, ExpressionType.NULL)
+        return Symbol(0, 0, None, ExpressionType.NULL)
