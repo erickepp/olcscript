@@ -36,6 +36,7 @@ from instructions.switch_instruction import Switch, Case, Default
 from instructions.while_instruction import While
 from instructions.for_instruction import For
 from instructions.for_each_instruction import ForEach
+from instructions.function import Function
 from instructions.console_log import ConsoleLog
 
 class codeParams:
@@ -391,6 +392,7 @@ def p_expresion_object(p):
 def p_expresion_acceso(p):
     '''acceso : acceso CORIZQ expresion CORDER
               | acceso PUNTO ID
+              | llamada_funcion
               | ID'''
     params = get_params(p)
     if len(p) > 4:
@@ -502,6 +504,74 @@ def p_instruccion_continue(p):
     'instruccion : CONTINUE PTCOMA'
     params = get_params(p)
     p[0] = Continue(params.line, params.column)
+
+
+def p_instruccion_return(p):
+    '''instruccion : RETURN expresion PTCOMA
+                   | RETURN PTCOMA'''
+    if len(p) > 3:
+        pass
+    else:
+        pass
+
+
+def p_instruccion_funcion(p):
+    '''instruccion : FUNCTION ID PARIZQ lista_parametros PARDER tipo_retorno LLAVIZQ instrucciones LLAVDER
+                   | FUNCTION ID PARIZQ PARDER tipo_retorno LLAVIZQ instrucciones LLAVDER'''
+    params = get_params(p)
+    if len(p) > 9:
+        p[0] = Function(params.line, params.column, p[2], p[4], p[6], p[8])
+    else:
+        p[0] = Function(params.line, params.column, p[2], [], p[5], p[7])
+
+
+def p_lista_parametros(p):
+    '''lista_parametros : lista_parametros COMA ID DOSPTS tipo_parametro
+                        | ID DOSPTS tipo_parametro'''
+    if len(p) > 4:
+        p[1].append({p[3]: p[5]})
+        p[0] = p[1]
+    else:
+        p[0] = [{p[1]: p[3]}]
+
+
+def p_tipo_parametro(p):
+    '''tipo_parametro : tipo dimensiones_array
+                      | tipo'''
+    if len(p) > 2:
+        p[0] = ExpressionType.ARRAY
+    else:
+        p[0] = p[1]
+
+
+def p_tipo_retorno(p):
+    '''tipo_retorno : DOSPTS tipo dimensiones_array
+                    | DOSPTS tipo
+                    |'''
+    if len(p) > 3:
+        p[0] = ExpressionType.ARRAY
+    elif len(p) > 1:
+        p[0] = p[2]
+    else:
+        p[0] = ExpressionType.NULL
+
+
+def p_instruccion_llamada_funcion(p):
+    '''instruccion : ID PARIZQ lista_expresiones PARDER PTCOMA
+                   | ID PARIZQ PARDER PTCOMA'''
+    if len(p) > 5:
+        pass
+    else:
+        pass
+
+
+def p_expresion_llamada_funcion(p):
+    '''llamada_funcion : ID PARIZQ lista_expresiones PARDER
+                       | ID PARIZQ PARDER'''
+    if len(p) > 4:
+        pass
+    else:
+        pass
 
 
 def p_instruccion_console_log(p):

@@ -64,7 +64,7 @@ class Environment:
 
     def save_interface(self, ast, id, interface, line, col):
         if id in self.interfaces:
-            ast.setErrors(f'Ya existe una interface con el nombre {id}', line, col, 'Semántico')
+            ast.set_errors(f'Ya existe una interface con el nombre "{id}".', line, col, 'Semántico')
             return
         self.interfaces[id] = interface
         ast.set_symbols(id, 'Interfaz', '', self.id, line)
@@ -79,6 +79,25 @@ class Environment:
             else:
                 tmp_env = tmp_env.previous
         ast.set_errors(f'La interfaz "{id}" no está definida.', line, col, 'Semántico')
+
+    def save_function(self, ast, id, function, line, col):
+        if id in self.functions:
+            ast.set_errors(f'Ya existe una función con el nombre "{id}".', line, col, 'Semántico')
+            return
+        self.functions[id] = function
+        ast.set_symbols(id, 'Función', function['type'].name, self.id, line)
+
+    def get_function(self, ast, id, line, col):
+        tmp_env = self
+        while True:
+            if id in tmp_env.functions:
+                return tmp_env.functions[id]
+            if tmp_env.previous == None:
+                break
+            else:
+                tmp_env = tmp_env.previous
+        ast.set_errors(f'La función "{id}" no está definida.', line, col, 'Semántico')
+        return {}
 
     def switch_validation(self):
         tmpEnv = self
