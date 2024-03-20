@@ -31,6 +31,8 @@ class While(Instruction):
                         break
                     elif flag.type == ExpressionType.CONTINUE:
                         continue
+                    elif flag.type == ExpressionType.RETURN:
+                        return flag
             else:
                 break
             if safe_cont >= 1000:

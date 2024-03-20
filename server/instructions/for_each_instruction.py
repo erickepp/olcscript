@@ -37,3 +37,5 @@ class ForEach(Instruction):
                     break
                 elif flag.type == ExpressionType.CONTINUE:
                     continue
+                elif flag.type == ExpressionType.RETURN:
+                    return flag

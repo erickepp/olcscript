@@ -16,6 +16,8 @@ from expressions.object import Object
 from expressions.ternary import Ternary
 from expressions.break_statement import Break
 from expressions.continue_statement import Continue
+from expressions.return_statement import Return
+from expressions.call import Call
 from expressions.parse_int import ParseInt
 from expressions.parse_float import ParseFloat
 from expressions.to_string import ToString
@@ -400,7 +402,10 @@ def p_expresion_acceso(p):
     elif len(p) > 2:
         p[0] = InterfaceAccess(params.line, params.column, p[1], p[3])
     else:
-        p[0] = Access(params.line, params.column, p[1])
+        if isinstance(p[1], str):
+            p[0] = Access(params.line, params.column, p[1])
+        else:
+            p[0] = p[1]
 
 
 def p_instruccion_incremento(p):
@@ -509,10 +514,11 @@ def p_instruccion_continue(p):
 def p_instruccion_return(p):
     '''instruccion : RETURN expresion PTCOMA
                    | RETURN PTCOMA'''
+    params = get_params(p)
     if len(p) > 3:
-        pass
+        p[0] = Return(params.line, params.column, p[2])
     else:
-        pass
+        p[0] = Return(params.line, params.column, None)
 
 
 def p_instruccion_funcion(p):
@@ -559,19 +565,21 @@ def p_tipo_retorno(p):
 def p_instruccion_llamada_funcion(p):
     '''instruccion : ID PARIZQ lista_expresiones PARDER PTCOMA
                    | ID PARIZQ PARDER PTCOMA'''
+    params = get_params(p)
     if len(p) > 5:
-        pass
+        p[0] = Call(params.line, params.column, p[1], p[3])
     else:
-        pass
+        p[0] = Call(params.line, params.column, p[1], [])
 
 
 def p_expresion_llamada_funcion(p):
     '''llamada_funcion : ID PARIZQ lista_expresiones PARDER
                        | ID PARIZQ PARDER'''
+    params = get_params(p)
     if len(p) > 4:
-        pass
+        p[0] = Call(params.line, params.column, p[1], p[3])
     else:
-        pass
+        p[0] = Call(params.line, params.column, p[1], [])
 
 
 def p_instruccion_console_log(p):

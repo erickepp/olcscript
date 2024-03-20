@@ -42,6 +42,8 @@ class For(Instruction):
                     break
                 elif flag.type == ExpressionType.CONTINUE:
                     pass
+                elif flag.type == ExpressionType.RETURN:
+                    return flag
 
             sym.value += 1
             result = self.exp2.ejecutar(ast, for_env)
